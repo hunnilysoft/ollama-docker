@@ -1,0 +1,27 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_PORT=11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Descomente as linhas abaixo se não estiver usando GPU ou estiver em um sistema sem NVIDIA
+    # runtime: nvidia  # Remove esta linha se não estiver usando GPU
+    # devices:  # Remove esta seção se não estiver usando GPU
+    #   - /dev/kfd:/dev/kfd
+    #   - /dev/dri:/dev/dri
+volumes:
+  ollama_data:
+    name: ollama

@@ -1,0 +1,39 @@
+# Utiliza a imagem base com suporte a CUDA
+FROM nvidia/cuda:12.2.2-base-ubuntu22.04
+
+# Instala dependências principais
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Baixa e instala o Ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# Configuração do ambiente
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_PORT=11434
+ENV OLLAMA_KEEP_ALIVE=5m
+
+# Cria usuário dedicado
+RUN adduser --disabled-password --gecos "" ollama
+
+# Configura diretórios
+WORKDIR /home/ollama
+RUN mkdir -p /home/ollama/.ollama && \
+    chown -R ollama:ollama /home/ollama
+
+# Volume para persistência
+VOLUME /home/ollama/.ollama
+
+# Porta exposta
+EXPOSE 11434
+
+# Usuário não-root
+USER ollama
+
+# Ponto de entrada
+ENTRYPOINT ["ollama"]
+CMD ["serve"]
